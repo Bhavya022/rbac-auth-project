@@ -1,9 +1,9 @@
-const fs = require('fs');
 const logAudit = (req, res, next) => {
-  const logEntry = `${new Date().toISOString()} - ${req.method} ${req.url} - ${req.user.email}\n`;
-  fs.appendFile('audit.log', logEntry, (err) => {
-    if (err) console.error('Failed to write audit log:', err);
-  });
+  if (req.user && req.user.email) {
+      console.log(`Audit log: User ${req.user.email} accessed ${req.originalUrl}`);
+  } else {
+      console.log('Audit log: Email not available');
+  }
   next();
 };
 
