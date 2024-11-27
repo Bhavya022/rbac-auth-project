@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RBAC Demo</title>
+</head>
+<body>
+  <h1>Role-Based Access Control Demo</h1>
+
+  <!-- Registration Form -->
+  <h2>Register</h2>
+  <form id="register-form">
+    <input type="text" id="username" placeholder="Username" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <select id="role">
+      <option value="Viewer">Viewer</option>
+      <option value="Editor">Editor</option>
+      <option value="Admin">Admin</option>
+    </select>
+    <button type="submit">Register</button>
+  </form>
+
+  <!-- Login Form -->
+  <h2>Login</h2>
+  <form id="login-form">
+    <input type="email" id="login-email" placeholder="Email" required>
+    <input type="password" id="login-password" placeholder="Password" required>
+    <button type="submit">Login</button>
+  </form>
+
+  <!-- Protected Resource Access -->
+  <h2>Access Protected Resources</h2>
+  <button onclick="fetchProtectedResource('/admin-dashboard')">Admin Dashboard</button>
+  <button onclick="fetchProtectedResource('/user-dashboard')">User Dashboard</button>
+
+  <script>
+    // Registration
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: document.getElementById('username').value,
+          email: document.getElementById('email').value,
+          password: document.getElementById('password').value,
+          role: document.getElementById('role').value
+        })
+      });
+      alert(await response.text());
+    });
+
+    // Login
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: document.getElementById('login-email').value,
+          password: document.getElementById('login-password').value
+        })
+      });
+      const data = await response.json();
+      localStorage.setItem('token', data.token);
+      alert('Login successful');
+    });
+
+    // Fetch Protected Resources
+    async function fetchProtectedResource(route) {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Please login first');
+        return;
+      }
+      const response = await fetch(`/api/auth${route}`, {
+        headers: { 'Authorization': token }
+      });
+      alert(await response.text());
+    }
+  </script>
+</body>
+</html>
